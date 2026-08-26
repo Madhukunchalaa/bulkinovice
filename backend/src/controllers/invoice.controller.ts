@@ -7,13 +7,11 @@ import { prisma } from '../config/db.js';
 import { allocateSequenceNumbers } from '../services/sequence.service.js';
 import { generateInvoicePdfsBatch, InvoiceData } from '../services/pdf.service.js';
 
-import os from 'os';
-
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Ensure upload directory is absolute and exists in temp directory
-const UPLOADS_DIR = path.join(os.tmpdir(), 'invoices');
+// Ensure upload directory is absolute and exists
+const UPLOADS_DIR = path.join(__dirname, '../../uploads/invoices');
 
 /**
  * Helper to ensure a string is a safe Windows filename (removes slashes)
@@ -221,8 +219,7 @@ export const generateInvoices = async (req: Request, res: Response): Promise<voi
   } catch (error: any) {
     console.error('Invoice generation error:', error);
     if (!res.headersSent) {
-      const detail = error?.message || error?.stack || (typeof error === 'object' ? JSON.stringify(error) : String(error));
-      res.status(500).json({ error: detail || 'An error occurred during invoice generation' });
+      res.status(500).json({ error: 'An error occurred during invoice generation' });
     }
   }
 };

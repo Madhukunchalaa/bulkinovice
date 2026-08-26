@@ -46,13 +46,10 @@ async function getBrowser() {
     });
   }
 
-  const execPath = await chromium.executablePath();
-  console.log('[PDF Service] Launching Chromium binary at:', execPath);
-
   return puppeteer.launch({
-    args: [...chromium.args, '--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage', '--single-process'],
+    args: chromium.args,
     defaultViewport: (chromium as any).defaultViewport || null,
-    executablePath: execPath,
+    executablePath: await chromium.executablePath(),
     headless: (chromium as any).headless ?? true,
   });
 }
