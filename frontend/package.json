@@ -6,8 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "start": "sirv dist --single --host 0.0.0.0 --port $PORT",
-    "preview": "sirv dist --single --host 0.0.0.0 --port $PORT"
+    "preview": "vite preview"
   },
   "dependencies": {
     "lucide-react": "^0.456.0",
