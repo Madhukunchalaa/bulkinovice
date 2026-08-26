@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Invoice</title>
+  <style>
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      color: #000;
+      margin: 0;
+      padding: 30px;
+      font-size: 13px;
+      line-height: 1.4;
+      background-color: #fff;
+    }
+    .invoice-container {
+      max-width: 800px;
+      margin: auto;
+      background: #fff;
+    }
+    /* Top Header Section */
+    .header-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+    }
+    .header-table td {
+      padding: 0;
+      vertical-align: top;
+    }
+    .firm-name {
+      font-size: 20px;
+      font-weight: bold;
+      color: #111111;
+      margin-bottom: 5px;
+      letter-spacing: 0.5px;
+    }
+    .firm-details {
+      font-size: 12px;
+      color: #333333;
+      line-height: 1.45;
+    }
+    .header-right {
+      text-align: right;
+    }
+    .recipient-badge {
+      font-size: 9px;
+      color: #666;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 5px;
+      display: block;
+    }
+    /* Divider */
+    .divider {
+      border: 0;
+      border-top: 1px solid #cccccc;
+      margin: 15px 0;
+    }
+    /* Metadata Bar */
+    .meta-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 25px;
+    }
+    .meta-table td {
+      padding: 0;
+      font-size: 13px;
+      font-weight: 500;
+      color: #333;
+    }
+    .meta-value {
+      font-weight: bold;
+      color: #000000;
+    }
+    /* Billing Details Section */
+    .billing-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+    }
+    .billing-table td {
+      padding: 0;
+      vertical-align: top;
+      width: 50%;
+    }
+    .billing-title {
+      font-size: 12px;
+      color: #555555;
+      margin-bottom: 4px;
+      font-weight: 500;
+    }
+    .billing-client-name {
+      font-size: 14px;
+      font-weight: bold;
+      color: #000000;
+    }
+    .billing-client-gstin {
+      font-size: 13px;
+      font-weight: bold;
+      color: #000000;
+      margin-top: 4px;
+    }
+    .billing-client-address {
+      font-size: 13px;
+      color: #222222;
+      line-height: 1.4;
+    }
+    /* Reference Section */
+    .reference-block {
+      font-size: 13px;
+      margin-bottom: 20px;
+      color: #000;
+    }
+    .reference-label {
+      font-weight: bold;
+    }
+    /* Service Items Table */
+    .items-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 10px;
+      font-size: 13px;
+    }
+    .items-table th {
+      padding: 8px 4px;
+      font-weight: bold;
+      color: #000;
+      border-bottom: 1.5px solid #cccccc;
+      font-size: 13px;
+    }
+    .items-table td {
+      padding: 10px 4px;
+      vertical-align: middle;
+    }
+    .text-left {
+      text-align: left;
+    }
+    .text-center {
+      text-align: center;
+    }
+    .text-right {
+      text-align: right;
+    }
+    .items-table tbody tr {
+      border-bottom: 1px solid #e5e7eb;
+    }
+    /* Totals Row styling */
+    .total-row {
+      border-top: 1.5px solid #000000;
+      font-size: 14px;
+    }
+    .total-row-label {
+      padding: 10px 4px;
+      text-align: right;
+      font-weight: bold;
+      font-size: 15px;
+    }
+    .total-row-value {
+      padding: 10px 4px;
+      text-align: right;
+      font-weight: bold;
+      font-size: 15px;
+    }
+    /* Words Total Line */
+    .words-total-bar {
+      border-top: 2px solid #3b82f6;
+      padding: 10px 4px 0 4px;
+      text-align: right;
+      font-size: 12px;
+      font-weight: 500;
+      color: #000;
+      margin-bottom: 15px;
+    }
+    .amount-payable-line {
+      text-align: right;
+      font-size: 15px;
+      font-weight: bold;
+      margin-bottom: 30px;
+      color: #000000;
+      padding-right: 4px;
+    }
+    /* Bottom Blocks (UPI, Bank, Stamp/Signature) */
+    .bottom-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 25px;
+    }
+    .bottom-table td {
+      vertical-align: top;
+    }
+    .bottom-title {
+      font-weight: bold;
+      color: #555555;
+      font-size: 12px;
+      margin-bottom: 8px;
+    }
+    .bank-detail-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+    .bank-detail-table td {
+      padding: 2.5px 0;
+      vertical-align: top;
+    }
+    .bank-detail-label {
+      color: #555555;
+      width: 32%;
+    }
+    .bank-detail-value {
+      font-weight: bold;
+      color: #000000;
+    }
+    /* Stamp Seal styling */
+    .stamp-container {
+      position: relative;
+      width: 110px;
+      height: 110px;
+      margin: 5px 20px 0 auto;
+    }
+    .stamp-circle {
+      position: absolute;
+      width: 90px;
+      height: 90px;
+      border: 3px double #0d4a60;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      left: 5px;
+      top: 5px;
+    }
+    .stamp-inner {
+      position: absolute;
+      width: 78px;
+      height: 78px;
+      border: 1px dashed #0d4a60;
+      border-radius: 50%;
+    }
+    .stamp-text {
+      font-family: Arial, sans-serif;
+      font-size: 8px;
+      font-weight: bold;
+      color: #0c4a60;
+      text-align: center;
+      line-height: 1.25;
+      transform: rotate(-5deg);
+    }
+    .signature-svg {
+      position: absolute;
+      top: 15px;
+      left: -10px;
+      transform: rotate(-8deg);
+      pointer-events: none;
+    }
+    /* Notes Section */
+    .notes-section {
+      font-size: 12px;
+      color: #4b5563;
+      border-top: 1px solid #e5e7eb;
+      padding-top: 15px;
+      line-height: 1.45;
+    }
+  </style>
+</head>
+<body>
+  <div class="invoice-container">
+    
+    <!-- Top Header -->
+    <table class="header-table">
+      <tr>
+        <td>
+          <div class="firm-name">SHAIK & REDDY ASSOCIATES</div>
+          <div class="firm-details">
+            Hno: 2-105/3, 2nd Floor<br>
+            Above PNB Bank, Suraram Main Road<br>
+            Hyderabad, TELANGANA, 500055<br>
+            <strong>Mobile</strong> +91 9063255721 &nbsp;&nbsp;&nbsp; <strong>Email</strong> shaikandreddy@gmail.com<br>
+            <strong>Website</strong> Shaikandreddyassociates.com
+          </div>
+        </td>
+        <td class="header-right" style="width: 200px;">
+          <span class="recipient-badge">Original for Recipient</span>
+          
+          <!-- Base64 Encoded CA India Logo -->
+          <img src="{{CA_LOGO_BASE64}}" width="125" height="60" alt="CA Logo" style="display: inline-block; margin-top: 5px;" />
+        </td>
+      </tr>
+    </table>
+
+    <hr class="divider">
+
+    <!-- Metadata Details Bar -->
+    <table class="meta-table">
+      <tr>
+        <td style="width: 33%;">Invoice #: <span class="meta-value">{{INVOICE_NUMBER}}</span></td>
+        <td style="width: 33%;">Invoice Date: <span class="meta-value">{{INVOICE_DATE}}</span></td>
+        <td style="width: 33%;">Due Date: <span class="meta-value">{{DUE_DATE}}</span></td>
+      </tr>
+    </table>
+
+    <!-- Billing Addresses Section -->
+    <table class="billing-table">
+      <tr>
+        <td style="padding-right: 20px;">
+          <div class="billing-title">Customer Details:</div>
+          <div class="billing-client-name">{{CLIENT_NAME}}</div>
+          {{#CLIENT_GSTIN}}
+          <div class="billing-client-gstin">GSTIN: {{CLIENT_GSTIN}}</div>
+          {{/CLIENT_GSTIN}}
+        </td>
+        <td style="padding-left: 20px;">
+          <div class="billing-title">Billing Address:</div>
+          <div class="billing-client-address">{{CLIENT_ADDRESS}}</div>
+        </td>
+      </tr>
+    </table>
+
+    <!-- Invoice Billing Reference -->
+    <div class="reference-block">
+      <span class="reference-label">Reference:</span> {{REFERENCE}}
+    </div>
+
+    <!-- Line Items Table -->
+    <table class="items-table">
+      <thead>
+        <tr style="border-top: 3px solid #3b82f6;">
+          <th class="text-left" style="width: 8%;">#</th>
+          <th class="text-left" style="width: 52%;">Item</th>
+          <th class="text-right" style="width: 18%;">Rate / Item</th>
+          <th class="text-center" style="width: 10%;">Qty</th>
+          <th class="text-right" style="width: 12%;">Amount</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="text-left">1</td>
+          <td class="text-left" style="font-weight: bold;">{{CATEGORY_LABEL}}</td>
+          <td class="text-right">{{AMOUNT}}</td>
+          <td class="text-center">1 MTH</td>
+          <td class="text-right" style="font-weight: bold;">{{AMOUNT}}</td>
+        </tr>
+        <tr class="total-row">
+          <td colspan="2" class="text-left" style="font-size: 11px; color: #555555; border: none; padding: 10px 4px;">
+            Total Items / Qty : 1 / 1
+          </td>
+          <td colspan="2" class="total-row-label" style="border: none;">Total</td>
+          <td class="total-row-value" style="border: none;">₹{{TOTAL}}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Words Total Section -->
+    <div class="words-total-bar">
+      Total amount (in words): <span style="font-weight: bold; margin-left: 4px;">INR {{AMOUNT_WORDS}} Rupees Only.</span>
+    </div>
+
+    <div class="amount-payable-line">
+      Amount Payable: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ₹{{TOTAL}}
+    </div>
+
+    <!-- Payment & Signature Blocks -->
+    <table class="bottom-table">
+      <tr>
+        <!-- UPI Section -->
+        <td style="width: 25%;">
+          <div class="bottom-title">Pay using UPI:</div>
+          
+          <!-- Crispy Offline Vector QR Code -->
+          <svg width="80" height="80" viewBox="0 0 29 29" shape-rendering="crispEdges" style="display: block;">
+            <path fill="#ffffff" d="M0,0h29v29h-29z"/>
+            <path fill="#000000" d="M0,0h7v1h-7zm0,6h7v1h-7zm0-5h1v4h-1zm6,0h1v4h-1zm-4,1h3v2h-3z"/>
+            <path fill="#000000" d="M22,0h7v1h-7zm0,6h7v1h-7zm0-5h1v4h-1zm6,0h1v4h-1zm-4,1h3v2h-3z"/>
+            <path fill="#000000" d="M0,22h7v1h-7zm0,6h7v1h-7zm0-5h1v4h-1zm6,0h1v4h-1zm-4,1h3v2h-3z"/>
+            <path fill="#000000" d="M22,22h5v5h-5zm1,1h3v3h-3z"/>
+            <path fill="#000000" d="M9,2h1v1h-1zm3,0h2v1h-2zm3,0h1v2h-1zm3,0h1v1h-1zm-10,2h2v1h-2zm4,0h1v1h-1zm3,0h2v1h-2zm-7,2h1v1h-1zm3,0h1v2h-1zm3,0h2v1h-2zm1,0h1v1h-1zm-8,2h3v1h-3zm5,0h1v1h-1zm2,0h2v1h-2zm-10,2h1v1h-1zm3,0h2v1h-2zm5,0h1v1h-1zm2,0h2v1h-2zm-10,2h2v1h-2zm4,0h1v1h-1zm3,0h1v1h-1zm3,0h2v1h-2zm-12,2h2v1h-2zm3,0h1v2h-1zm2,0h2v1h-2zm4,0h1v1h-1zm-9,2h1v1h-1zm2,0h1v1h-1zm3,0h2v1h-2zm4,0h1v1h-1zm1,0h2v1h-2zm-12,2h2v1h-2zm3,0h1v1h-1zm3,0h2v1h-2zm5,0h1v1h-1zm2,0h1v1h-1zm-13,2h1v2h-1zm2,0h3v1h-3zm4,0h1v1h-1zm2,0h2v1h-2zm4,0h1v1h-1z"/>
+          </svg>
+        </td>
+
+        <!-- Bank Details Section -->
+        <td style="width: 40%; padding-left: 10px;">
+          <div class="bottom-title" style="color: #000000;">Bank Details:</div>
+          <table class="bank-detail-table">
+            <tr>
+              <td class="bank-detail-label">Bank:</td>
+              <td class="bank-detail-value">{{BANK_NAME}}</td>
+            </tr>
+            <tr>
+              <td class="bank-detail-label">Account #:</td>
+              <td class="bank-detail-value">{{BANK_ACCOUNT_NO}}</td>
+            </tr>
+            <tr>
+              <td class="bank-detail-label">IFSC Code:</td>
+              <td class="bank-detail-value">{{BANK_IFSC}}</td>
+            </tr>
+            <tr>
+              <td class="bank-detail-label">Branch:</td>
+              <td class="bank-detail-value">{{BANK_BRANCH}}</td>
+            </tr>
+          </table>
+        </td>
+
+        <!-- Stamp & Signature Section -->
+        <td style="width: 35%; text-align: right;">
+          <div class="bottom-title" style="font-size: 11px; margin-bottom: 2px; text-transform: uppercase;">
+            For SHAIK & REDDY ASSOCIATES
+          </div>
+          
+          <!-- Circular Blue Ink Seal + Signature -->
+          <div class="stamp-container">
+            <div class="stamp-circle">
+              <div class="stamp-inner"></div>
+              <span class="stamp-text">
+                SHAIK & REDDY<br>ASSOCIATES<br>
+                <span style="font-size: 6px; font-weight: normal; letter-spacing: 0.5px;">HYDERABAD</span>
+              </span>
+            </div>
+            
+            <!-- Handwritten blue ink signature lines overlay -->
+            <svg class="signature-svg" width="120" height="70" xmlns="http://www.w3.org/2000/svg">
+              <path d="M 15,45 C 30,15 45,45 60,25 C 75,10 90,55 110,35" fill="none" stroke="#2563eb" stroke-width="2.2" stroke-linecap="round" />
+              <path d="M 50,30 C 65,45 70,10 75,15" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" />
+            </svg>
+          </div>
+          
+          <div style="font-size: 11px; font-weight: bold; color: #555555; margin-top: 8px; text-align: center; width: 150px; margin-left: auto;">
+            Authorized Signatory
+          </div>
+        </td>
+      </tr>
+    </table>
+
+    <!-- Notes Footer -->
+    <div class="notes-section">
+      <strong>Notes:</strong><br>
+      We sincerely appreciate your business. Kindly ensure payment is made within 15 days. Should you have any inquiries regarding this invoice, please do not hesitate to contact us.
+    </div>
+
+  </div>
+</body>
+</html>
