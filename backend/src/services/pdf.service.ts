@@ -1,6 +1,7 @@
 import puppeteer from 'puppeteer';
 import fs from 'fs';
 import path from 'path';
+import { execSync } from 'child_process';
 import { fileURLToPath } from 'url';
 import numberToWords from '../utils/numberToWords.js';
 
@@ -51,15 +52,27 @@ function getPuppeteerLaunchOptions() {
     ],
   };
 
-  if (process.env.PUPPETEER_EXECUTABLE_PATH) {
-    options.executablePath = process.env.PUPPETEER_EXECUTABLE_PATH;
-  } else if (fs.existsSync('/usr/bin/chromium')) {
-    options.executablePath = '/usr/bin/chromium';
-  } else if (fs.existsSync('/usr/bin/chromium-browser')) {
-    options.executablePath = '/usr/bin/chromium-browser';
-  } else if (fs.existsSync('/usr/bin/google-chrome')) {
-    options.executablePath = '/usr/bin/google-chrome';
+  const candidatePaths = [
+    process.env.PUPPETEER_EXECUTABLE_PATH,
+    '/usr/bin/chromium',
+    '/usr/bin/chromium-browser',
+    '/usr/bin/google-chrome',
+    '/usr/bin/google-chrome-stable',
+  ].filter(Boolean) as string[];
+
+  for (const p of candidatePaths) {
+    if (fs.existsSync(p)) {
+      options.executablePath = p;
+      return options;
+    }
   }
+
+  try {
+    const whichPath = execSync('which chromium || which chromium-browser || which google-chrome', { encoding: 'utf8' }).trim();
+    if (whichPath && fs.existsSync(whichPath)) {
+      options.executablePath = whichPath;
+    }
+  } catch {}
 
   return options;
 }
