@@ -1,7 +1,7 @@
-import puppeteer from 'puppeteer';
+import puppeteer from 'puppeteer-core';
+import chromium from '@sparticuz/chromium';
 import fs from 'fs';
 import path from 'path';
-import { execSync } from 'child_process';
 import { fileURLToPath } from 'url';
 import numberToWords from '../utils/numberToWords.js';
 
@@ -37,44 +37,21 @@ function resolveAssetPath(filename: string): string {
   return candidates[0];
 }
 
-function getPuppeteerLaunchOptions() {
-  const options: any = {
-    headless: true,
-    args: [
-      '--no-sandbox',
-      '--disable-setuid-sandbox',
-      '--disable-dev-shm-usage',
-      '--disable-accelerated-2d-canvas',
-      '--no-first-run',
-      '--no-zygote',
-      '--single-process',
-      '--disable-gpu',
-    ],
-  };
-
-  const candidatePaths = [
-    process.env.PUPPETEER_EXECUTABLE_PATH,
-    '/usr/bin/chromium',
-    '/usr/bin/chromium-browser',
-    '/usr/bin/google-chrome',
-    '/usr/bin/google-chrome-stable',
-  ].filter(Boolean) as string[];
-
-  for (const p of candidatePaths) {
-    if (fs.existsSync(p)) {
-      options.executablePath = p;
-      return options;
-    }
+async function getBrowser() {
+  if (process.platform === 'win32') {
+    const fullPuppeteer = await import('puppeteer');
+    return fullPuppeteer.default.launch({
+      headless: true,
+      args: ['--no-sandbox', '--disable-setuid-sandbox']
+    });
   }
 
-  try {
-    const whichPath = execSync('which chromium || which chromium-browser || which google-chrome', { encoding: 'utf8' }).trim();
-    if (whichPath && fs.existsSync(whichPath)) {
-      options.executablePath = whichPath;
-    }
-  } catch {}
-
-  return options;
+  return puppeteer.launch({
+    args: chromium.args,
+    defaultViewport: (chromium as any).defaultViewport || null,
+    executablePath: await chromium.executablePath(),
+    headless: (chromium as any).headless ?? true,
+  });
 }
 
 // Simple template renderer (helper)
@@ -152,11 +129,11 @@ export async function generateInvoicePdf(data: InvoiceData, outputPath: string):
     fs.mkdirSync(dir, { recursive: true });
   }
 
-  const browser = await puppeteer.launch(getPuppeteerLaunchOptions());
+  const browser = await getBrowser();
 
   try {
     const page = await browser.newPage();
-    await page.setContent(html, { waitUntil: 'networkidle0' });
+    await page.setContent(html, { waitUntil: 'networkidle0' as any });
     await page.pdf({
       path: outputPath,
       format: 'A4',
@@ -180,7 +157,7 @@ export async function generateInvoicePdfsBatch(
   const templateContent = fs.readFileSync(templatePath, 'utf8');
 
   // Launch browser once
-  const browser = await puppeteer.launch(getPuppeteerLaunchOptions());
+  const browser = await getBrowser();
 
   try {
     const page = await browser.newPage();
@@ -194,7 +171,7 @@ export async function generateInvoicePdfsBatch(
       }
 
       // Load HTML content
-      await page.setContent(html, { waitUntil: 'networkidle0' });
+      await page.setContent(html, { waitUntil: 'networkidle0' as any });
       
       // Print to PDF file
       await page.pdf({
