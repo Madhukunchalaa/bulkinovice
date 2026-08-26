@@ -219,7 +219,7 @@ export const generateInvoices = async (req: Request, res: Response): Promise<voi
   } catch (error: any) {
     console.error('Invoice generation error:', error);
     if (!res.headersSent) {
-      res.status(500).json({ error: 'An error occurred during invoice generation' });
+      res.status(500).json({ error: error.message || 'An error occurred during invoice generation' });
     }
   }
 };

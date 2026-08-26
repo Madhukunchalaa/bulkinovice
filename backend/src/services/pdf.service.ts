@@ -21,6 +21,49 @@ export interface InvoiceData {
   amount: number;
 }
 
+function resolveAssetPath(filename: string): string {
+  const candidates = [
+    path.join(process.cwd(), 'src/templates', filename),
+    path.join(process.cwd(), 'backend/src/templates', filename),
+    path.join(__dirname, '../templates', filename),
+    path.join(__dirname, '../../src/templates', filename),
+  ];
+  for (const candidate of candidates) {
+    if (fs.existsSync(candidate)) {
+      return candidate;
+    }
+  }
+  return candidates[0];
+}
+
+function getPuppeteerLaunchOptions() {
+  const options: any = {
+    headless: true,
+    args: [
+      '--no-sandbox',
+      '--disable-setuid-sandbox',
+      '--disable-dev-shm-usage',
+      '--disable-accelerated-2d-canvas',
+      '--no-first-run',
+      '--no-zygote',
+      '--single-process',
+      '--disable-gpu',
+    ],
+  };
+
+  if (process.env.PUPPETEER_EXECUTABLE_PATH) {
+    options.executablePath = process.env.PUPPETEER_EXECUTABLE_PATH;
+  } else if (fs.existsSync('/usr/bin/chromium')) {
+    options.executablePath = '/usr/bin/chromium';
+  } else if (fs.existsSync('/usr/bin/chromium-browser')) {
+    options.executablePath = '/usr/bin/chromium-browser';
+  } else if (fs.existsSync('/usr/bin/google-chrome')) {
+    options.executablePath = '/usr/bin/google-chrome';
+  }
+
+  return options;
+}
+
 // Simple template renderer (helper)
 function renderTemplate(template: string, data: Record<string, string>): string {
   let rendered = template;
@@ -30,7 +73,6 @@ function renderTemplate(template: string, data: Record<string, string>): string 
   rendered = rendered.replace(conditionalRegex, (match, key, content) => {
     const val = data[key];
     if (val && val.trim() !== '') {
-      // Replace any occurrences of {{KEY}} inside this block
       return content.replace(new RegExp(`\\{\\{${key}\\}\\}`, 'g'), val);
     }
     return '';
@@ -53,7 +95,7 @@ function getHtmlForInvoice(data: InvoiceData, templateContent: string): string {
   });
 
   // Load CA logo PNG from disk and convert to Base64
-  const logoPath = path.join(process.cwd(), 'src/templates/ca_logo.png');
+  const logoPath = resolveAssetPath('ca_logo.png');
   let logoBase64 = '';
   if (fs.existsSync(logoPath)) {
     const logoBuffer = fs.readFileSync(logoPath);
@@ -88,7 +130,7 @@ function getHtmlForInvoice(data: InvoiceData, templateContent: string): string {
  * Generates a single PDF invoice (convenience wrapper)
  */
 export async function generateInvoicePdf(data: InvoiceData, outputPath: string): Promise<void> {
-  const templatePath = path.join(process.cwd(), 'src/templates/invoice.template.html');
+  const templatePath = resolveAssetPath('invoice.template.html');
   const templateContent = fs.readFileSync(templatePath, 'utf8');
   const html = getHtmlForInvoice(data, templateContent);
 
@@ -97,10 +139,7 @@ export async function generateInvoicePdf(data: InvoiceData, outputPath: string):
     fs.mkdirSync(dir, { recursive: true });
   }
 
-  const browser = await puppeteer.launch({
-    headless: true,
-    args: ['--no-sandbox', '--disable-setuid-sandbox']
-  });
+  const browser = await puppeteer.launch(getPuppeteerLaunchOptions());
 
   try {
     const page = await browser.newPage();
@@ -124,14 +163,11 @@ export async function generateInvoicePdfsBatch(
 ): Promise<void> {
   if (batch.length === 0) return;
 
-  const templatePath = path.join(process.cwd(), 'src/templates/invoice.template.html');
+  const templatePath = resolveAssetPath('invoice.template.html');
   const templateContent = fs.readFileSync(templatePath, 'utf8');
 
   // Launch browser once
-  const browser = await puppeteer.launch({
-    headless: true,
-    args: ['--no-sandbox', '--disable-setuid-sandbox']
-  });
+  const browser = await puppeteer.launch(getPuppeteerLaunchOptions());
 
   try {
     const page = await browser.newPage();
