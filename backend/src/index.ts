@@ -36,6 +36,11 @@ app.use('/api/categories', categoryRoutes);
 app.use('/api/clients', clientRoutes);
 app.use('/api/invoices', invoiceRoutes);
 
+// Root Route
+app.get('/', (req, res) => {
+  res.json({ message: 'Bulk Invoice Generator API is running', health: '/health' });
+});
+
 // Health Check
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', time: new Date() });
