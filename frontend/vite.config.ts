@@ -5,6 +5,7 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   server: {
-    port: 3000, // Let's run the frontend on port 3000 for standard local development
+    port: 8080, // Railway uses port 8080 for deployment
   }
 })
+
