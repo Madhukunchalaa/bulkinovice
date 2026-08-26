@@ -1,4 +1,4 @@
-const API_BASE_URL = (import.meta as any).env?.VITE_API_BASE_URL || 'https://bulkinovice-production.up.railway.app/api';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://bulkinovice-production.up.railway.app/api';
 
 /**
  * Standard fetch wrapper that attaches JWT and handles JSON responses.
